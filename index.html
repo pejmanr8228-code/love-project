@@ -79,6 +79,30 @@ background:#ff5c8a;
 color:white;
 }
 
+#homeBtn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:rgba(255,255,255,0.85);
+color:#ff5c8a;
+border:2px solid #ff5c8a;
+border-radius:50px;
+padding:10px 18px;
+font-size:14px;
+font-family:tahoma,sans-serif;
+cursor:pointer;
+z-index:9999;
+display:none;
+box-shadow:0 4px 15px rgba(0,0,0,0.15);
+transition:.3s;
+}
+
+#homeBtn:hover{
+background:#ff5c8a;
+color:white;
+transform:scale(1.05);
+}
+
 .floating{
 position:fixed;
 font-size:30px;
@@ -573,7 +597,7 @@ pointer-events:none;
 <h1>🎉 FINALLY...</h1>
 
 <p>
-راستش ۷۶۲ خط کد نوشتم
+راستش ۸۸۵ خط کد نوشتم
 فقط برای اینکه این سؤال رو بپرسم 😅
 </p>
 
@@ -600,10 +624,15 @@ pointer-events:none;
 </div>
 
 
+
+
 <!-- floating elements -->
 <div class="floating floating1">✨</div>
 <div class="floating floating2">🌟</div>
 <div class="floating floating3">✨</div>
+
+<!-- دکمه بازگشت به صفحه اول -->
+<button id="homeBtn" onclick="goHome()">🏠 بازگشت به صفحه اول</button>
 
 <script>
 
@@ -613,80 +642,177 @@ document.querySelectorAll('.screen')
 
 document.getElementById(screenId)
 .classList.add('active');
+
+// نمایش دکمه بازگشت در همه صفحه‌ها به جز صفحه اول
+const homeBtn = document.getElementById('homeBtn');
+homeBtn.style.display = (screenId === 'SCR-001') ? 'none' : 'block';
+}
+
+function goHome(){
+noStep = 1;
+noMoveCount = 0;
+showScreen('SCR-001');
 }
 
 function startCelebration(){
 
-// اکلیل‌های پرحجم و سراسری
-for(let i = 0; i < 120; i++){
+  // --- کانفتی رنگی ---
+  const confettiColors = ['#ff5c8a','#ffd700','#a6c1ee','#fbc2eb','#00e5ff','#69f0ae','#ff6e40','#e040fb'];
+  const confettiShapes = ['■','▲','●','◆','▰'];
 
-const sparkle = document.createElement("div");
-sparkle.innerHTML = ["✨","⭐","💫"][Math.floor(Math.random()*3)];
+  for(let i = 0; i < 160; i++){
+    setTimeout(() => {
+      const c = document.createElement("div");
+      c.innerText = confettiShapes[Math.floor(Math.random()*confettiShapes.length)];
+      const size = 8 + Math.random() * 14;
+      c.style.cssText = `
+        position:fixed;
+        left:${Math.random()*100}vw;
+        top:-20px;
+        font-size:${size}px;
+        color:${confettiColors[Math.floor(Math.random()*confettiColors.length)]};
+        z-index:9998;
+        pointer-events:none;
+        opacity:1;
+        transform:rotate(${Math.random()*360}deg);
+      `;
+      document.body.appendChild(c);
 
-sparkle.style.position = "fixed";
-sparkle.style.left = Math.random() * 100 + "vw";
-sparkle.style.top = "-20px";
-sparkle.style.fontSize = (12 + Math.random() * 25) + "px";
-sparkle.style.opacity = Math.random();
-sparkle.style.zIndex = "9999";
-sparkle.style.pointerEvents = "none";
+      let top = -20;
+      let left = parseFloat(c.style.left);
+      let speedY = 3 + Math.random() * 5;
+      let speedX = (Math.random() - 0.5) * 3;
+      let rot = Math.random() * 360;
+      let rotSpeed = (Math.random() - 0.5) * 10;
+      let opacity = 1;
 
-document.body.appendChild(sparkle);
+      const fall = setInterval(() => {
+        top += speedY;
+        left += speedX;
+        speedX += (Math.random() - 0.5) * 0.3;
+        rot += rotSpeed;
+        if(top > window.innerHeight * 0.7) opacity -= 0.025;
+        c.style.top = top + 'px';
+        c.style.left = left + 'px';
+        c.style.transform = `rotate(${rot}deg)`;
+        c.style.opacity = opacity;
+        if(top > window.innerHeight || opacity <= 0){
+          clearInterval(fall);
+          c.remove();
+        }
+      }, 16);
+    }, i * 18);
+  }
 
-// حرکت تصادفی + افتادن
-let speedX = (Math.random() - 0.5) * 4;
-let speedY = 2 + Math.random() * 5;
+  // --- ستاره‌های درخشان ---
+  const sparkleEmojis = ['✨','💫','⭐','🌟'];
+  for(let i = 0; i < 30; i++){
+    setTimeout(() => {
+      const s = document.createElement("div");
+      s.innerText = sparkleEmojis[Math.floor(Math.random()*sparkleEmojis.length)];
+      const size = 18 + Math.random() * 28;
+      s.style.cssText = `
+        position:fixed;
+        left:${Math.random()*100}vw;
+        top:${Math.random()*80}vh;
+        font-size:${size}px;
+        z-index:9999;
+        pointer-events:none;
+        opacity:0;
+        transition: opacity 0.3s;
+      `;
+      document.body.appendChild(s);
 
-let fall = setInterval(() => {
+      // ظاهر شدن و ناپدید شدن چشمک‌وار
+      let blink = 0;
+      const twinkle = setInterval(() => {
+        blink++;
+        s.style.opacity = blink % 2 === 0 ? '1' : '0.2';
+        if(blink > 8){
+          clearInterval(twinkle);
+          s.style.opacity = '0';
+          setTimeout(() => s.remove(), 400);
+        }
+      }, 200);
+    }, i * 80);
+  }
 
-let top = parseFloat(sparkle.style.top);
-let left = parseFloat(sparkle.style.left);
+  // --- بادکنک‌های شناور با حرکت سینوسی ---
+  const balloonEmojis = ['🎈','🎊','🎉','🎀','💝'];
+  for(let i = 0; i < 18; i++){
+    setTimeout(() => {
+      const b = document.createElement("div");
+      b.innerText = balloonEmojis[Math.floor(Math.random()*balloonEmojis.length)];
+      const size = 28 + Math.random() * 24;
+      let posX = 5 + Math.random() * 90;
+      b.style.cssText = `
+        position:fixed;
+        left:${posX}vw;
+        bottom:-70px;
+        font-size:${size}px;
+        z-index:9999;
+        pointer-events:none;
+        opacity:0.95;
+      `;
+      document.body.appendChild(b);
 
-sparkle.style.top = (top + speedY) + "px";
-sparkle.style.left = (left + speedX) + "px";
+      let bottom = -70;
+      let speedY = 1.8 + Math.random() * 1.5;
+      let time = 0;
+      const amplitude = 15 + Math.random() * 20;
+      const freq = 0.03 + Math.random() * 0.02;
 
-speedX += (Math.random() - 0.5) * 0.2;
+      const rise = setInterval(() => {
+        bottom += speedY;
+        time++;
+        const drift = amplitude * Math.sin(freq * time * 2 * Math.PI);
+        b.style.bottom = bottom + 'px';
+        b.style.left = (posX + drift/10) + 'vw';
+        if(bottom > window.innerHeight + 80){
+          clearInterval(rise);
+          b.remove();
+        }
+      }, 16);
+    }, i * 120);
+  }
 
-if(top > window.innerHeight){
-clearInterval(fall);
-sparkle.remove();
-}
+  // --- قلب‌های پرنده از مرکز صفحه ---
+  const hearts = ['❤️','🧡','💛','💚','💙','💜','🩷'];
+  for(let i = 0; i < 12; i++){
+    setTimeout(() => {
+      const h = document.createElement("div");
+      h.innerText = hearts[Math.floor(Math.random()*hearts.length)];
+      const angle = (i / 12) * 2 * Math.PI;
+      h.style.cssText = `
+        position:fixed;
+        left:50vw;
+        top:50vh;
+        font-size:${20 + Math.random()*18}px;
+        z-index:9999;
+        pointer-events:none;
+        opacity:1;
+        transform:translate(-50%,-50%);
+      `;
+      document.body.appendChild(h);
 
-}, 20);
+      let progress = 0;
+      const vx = Math.cos(angle) * (3 + Math.random() * 3);
+      const vy = Math.sin(angle) * (3 + Math.random() * 3) - 2;
+      let x = 0, y = 0;
 
-}
-
-// بادکنک‌های واقعی‌تر
-for(let i = 0; i < 20; i++){
-
-const balloon = document.createElement("div");
-balloon.innerHTML = ["🎈","🎊","🎉"][Math.floor(Math.random()*3)];
-
-balloon.style.position = "fixed";
-balloon.style.left = Math.random() * 100 + "vw";
-balloon.style.bottom = "-60px";
-balloon.style.fontSize = (25 + Math.random()*20) + "px";
-balloon.style.zIndex = "9999";
-balloon.style.pointerEvents = "none";
-
-document.body.appendChild(balloon);
-
-let rise = setInterval(() => {
-
-let bottom = parseFloat(balloon.style.bottom);
-let drift = (Math.random() - 0.5) * 2;
-
-balloon.style.bottom = (bottom + 3 + Math.random()*2) + "px";
-balloon.style.left = (parseFloat(balloon.style.left) + drift) + "px";
-
-if(bottom > window.innerHeight + 100){
-clearInterval(rise);
-balloon.remove();
-}
-
-}, 20);
-
-}
+      const fly = setInterval(() => {
+        progress++;
+        x += vx;
+        y += vy - progress * 0.04;
+        h.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${1 + progress*0.01})`;
+        h.style.opacity = Math.max(0, 1 - progress / 60);
+        if(progress > 60){
+          clearInterval(fly);
+          h.remove();
+        }
+      }, 16);
+    }, i * 50);
+  }
 
 }
 
